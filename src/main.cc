@@ -13,12 +13,11 @@ void setup() {
 
   // buttonHandler.registerReleaseFn(&test);
   // buttonHandler.registerButton(3, &press, &release);
-  // buttonHandler.registerButton(3,
-  //   []() { analogWrite(AUDIO_OUTPUT_PIN, 100); },
-  //   []() { analogWrite(AUDIO_OUTPUT_PIN, 0); }
-  // );
+  buttonHandler.registerButton(3,
+    []() { analogWrite(AUDIO_OUTPUT_PIN, 100); },
+    []() { analogWrite(AUDIO_OUTPUT_PIN, 0); }
+  );
   
-  buttonHandler.registerButton(3);
 }
 
 void loop() {
