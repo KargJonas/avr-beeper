@@ -19,34 +19,32 @@
 ButtonHandler buttonHandler;
 Oscil <SIN2048_NUM_CELLS, AUDIO_RATE> aSin(SIN2048_DATA);
 
-void handlePress(int pin) {
-  analogWrite(AUDIO_OUTPUT_PIN, 200);
-}
+int gain = 0;
 
-void handleRelease(int pin) {
-  analogWrite(AUDIO_OUTPUT_PIN, 0);
-}
+void handlePress(int pin) { }
+
+void handleRelease(int pin) { }
 
 void setup() {
-  pinMode(AUDIO_OUTPUT_PIN, OUTPUT);
+  // pinMode(AUDIO_OUTPUT_PIN, OUTPUT);
   Serial.begin(9600);
 
-  buttonHandler.registerButtonN( { C4, D4, E4, F4, G4 } );
+  buttonHandler.registerButton( { C4, D4, E4, F4, G4 } );
   buttonHandler.registerHandlers(&handlePress, &handleRelease);
-  // startMozzi(MOZZI_CONTROL_RATE);
+  startMozzi(MOZZI_CONTROL_RATE);
+  aSin.setFreq(2000);
 }
 
 void loop() {
-    buttonHandler.update();
-
-  // audioHook();
+  audioHook();
 }
 
 void updateControl() {
   buttonHandler.update();
+  gain = buttonHandler.getState(C4) == 1 ? 255 : 0;
+  Serial.println(buttonHandler.getState(C4));
 }
 
-// int updateAudio() {
-// 	// your audio code which returns an int between -244 and 243
-//   return aSin.next();
-// }
+int updateAudio() {
+  return (aSin.next() * gain) >> 8;
+}

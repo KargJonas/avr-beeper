@@ -1,6 +1,7 @@
 #pragma once
 #include <Arduino.h>
 #include <ArduinoSTL.h>
+#include <map>
 
 /**
  * @brief Contains pin number, state at time of last update,
@@ -54,6 +55,7 @@ public:
 class ButtonHandler {
 private:
   std::vector<Button> buttons;
+  std::map<int, int> pinMap; 
   void (*pressHandler)(int);
   void (*releaseHandler)(int);
   bool hasHandlers;
@@ -86,6 +88,7 @@ public:
   void registerButton( byte _pin ) {
     Button registeredButton = Button(_pin);
     buttons.push_back(registeredButton);
+    pinMap[_pin] = buttons.size() - 1;
   }
 
   /**
@@ -93,8 +96,11 @@ public:
    * 
    * @param _pins An std::vector<byte> list containing pin numbers.
    */
-  void registerButtonN( std::vector<byte> _pins ) {
-    for ( byte _pin : _pins ) registerButton(_pin);
+  void registerButton( std::vector<byte> _pins ) {
+    for ( byte _pin : _pins ) {
+      registerButton(_pin);
+      pinMap[_pin] = buttons.size() - 1;
+    }
   }
 
   /**
@@ -111,6 +117,7 @@ public:
   {
     Button registeredButton = Button(_pin, _pressHandler, _releaseHandler);
     buttons.push_back(registeredButton);
+    pinMap[_pin] = buttons.size() - 1;
   }
 
   /**
@@ -129,6 +136,17 @@ public:
     pressHandler = _pressHandler;
     releaseHandler = _releaseHandler;
     hasHandlers = true;
+  }
+
+  /**
+   * @brief Get the state of a button by its pin number.
+   * 
+   * @param _pin GPIO pin number.
+   * @return true Button is pressed.
+   * @return false Button is not pressed.
+   */
+  bool getState(int _pin) {
+    return buttons[pinMap[_pin]].state;
   }
 
   /**
