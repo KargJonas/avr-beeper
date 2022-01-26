@@ -36,8 +36,8 @@ public:
 class ButtonHandler {
 private:
   std::vector<Button> buttons;
-  void (*pressHandler)();
-  void (*releaseHandler)();
+  void (*pressHandler)(int);
+  void (*releaseHandler)(int);
   bool hasHandlers;
 
 public:
@@ -45,7 +45,7 @@ public:
   ButtonHandler() : hasHandlers(false) { }
 
   // Constructor with handlers
-  ButtonHandler( void (*_pressHandler)(), void (*_releaseHandler)() )
+  ButtonHandler( void (*_pressHandler)(int), void (*_releaseHandler)(int) )
   : pressHandler(_pressHandler), releaseHandler(_releaseHandler), hasHandlers(true) { }
 
   void registerButton( byte _pin ) {
@@ -62,20 +62,22 @@ public:
     buttons.push_back(registeredButton);
   }
 
+public:
   void update() {
-    std::for_each( buttons.begin(), buttons.end(), [](Button &button ) {
+    for ( Button &button : buttons ) {
       bool newState = (digitalRead(button.pin) == HIGH);
+
       if ( newState != button.state ) {
         button.state = newState;
 
-        if (newState) {
+        if ( newState ) {
           if ( button.hasHandlers ) button.pressHandler();
-          if (hasHandlers) pressHandler();
+          if (hasHandlers) pressHandler(button.pin);
         } else {
           if ( button.hasHandlers ) button.releaseHandler();
-          if (hasHandlers) releaseHandler();
+          if (hasHandlers) releaseHandler(button.pin);
         }
       }
-    });
+    }
   }
 };
